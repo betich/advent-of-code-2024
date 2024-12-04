@@ -21,9 +21,8 @@ func Abs (x int) int {
   return x
 }
 
-func DecodeDistance(rawInput string) int {
-	// split input by spaces, then trim
-	splitbyLine := strings.Split(rawInput, "\n")
+func DecodeNumbers(rawInput string) ([]int, []int) {
+  splitbyLine := strings.Split(rawInput, "\n")
   
   if (splitbyLine[len(splitbyLine) - 1] == "") {
     splitbyLine = splitbyLine[:len(splitbyLine) - 1]
@@ -46,6 +45,12 @@ func DecodeDistance(rawInput string) int {
     listB[i] = B
   }
 
+  return listA, listB
+}
+
+func Part1(rawInput string) int {
+	listA, listB := DecodeNumbers(rawInput)
+
   slices.Sort(listA)
   slices.Sort(listB)
 
@@ -67,5 +72,5 @@ func main() {
   check(err)
 
 	b1 := string(data)
-	fmt.Println(DecodeDistance(b1))
+	fmt.Println(Part1(b1)) // part 1
 }
