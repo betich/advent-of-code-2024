@@ -111,7 +111,7 @@ func main() {
 
 	data := string(b1)
 
-	fmt.Println(DetectUnusualSequence(data))
+	fmt.Println(DetectUnusualSequence(data)) // Part 1 - 516 , Part 2 - 561
 
   // a := []int{7, 6, 4, 2, 1}
   // fmt.Println(SliceAt(a, 4))
