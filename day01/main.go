@@ -67,10 +67,41 @@ func Part1(rawInput string) int {
 	return result
 }
 
+func Part2(rawInput string) int {
+  listA, listB := DecodeNumbers(rawInput)
+
+  // unique values of listA
+
+  unique := map[int]int{}
+
+  for _, value := range listA {
+    if _, ok := unique[value]; !ok {
+      // find all occurences of value in listB
+      count := 0
+      for _, valueB := range listB {
+        if valueB == value {
+          count++
+        }
+      }
+      unique[value] = count
+    }
+  }
+
+  result := 0
+
+  for key, value := range unique {
+    result += key * value
+  }
+
+  return result
+}
+
 func main() {
-	data, err := os.ReadFile("./input.txt") // ans 1651298
+	data, err := os.ReadFile("./input.txt")
   check(err)
 
 	b1 := string(data)
-	fmt.Println(Part1(b1)) // part 1
+	fmt.Println(Part1(b1)) // ans 1651298
+
+  fmt.Println(Part2(b1)) // ans 21306195
 }
