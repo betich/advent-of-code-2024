@@ -21,7 +21,8 @@ func Abs(x int) int {
   }
 }
 
-func IsUnsualSequence(sequence []int) bool {
+func IsSafeSequence(sequence []int) bool {
+  // Part 1
   if len(sequence) < 2 { return true }
   
   isAscending := sequence[1] - sequence[0] > 0
@@ -45,7 +46,41 @@ func IsUnsualSequence(sequence []int) bool {
   return true
 }
 
-func Part1(rawInput string) int {
+func SliceAt(slice []int, index int) []int {
+  var s []int
+	
+	s = append(s, slice[:index]...)
+	s = append(s, slice[index+1:]...)
+	
+	return s
+}
+
+func IsSafeSequenceDamped(sequence []int) bool {
+  // Part 2
+  if len(sequence) < 2 { return true }
+
+  isSafe := IsSafeSequence(sequence)
+
+  if !isSafe {
+    isNewSafe := false
+    for i := 0 ; i < len(sequence); i++ {
+      newSlice := SliceAt(sequence, i)
+
+      if IsSafeSequence(newSlice) {
+        isNewSafe = true
+        break
+      }
+    }
+
+    if !isNewSafe {
+      return false
+    }
+  }
+
+  return true
+}
+
+func DetectUnusualSequence(rawInput string) int {
   splitByLine := strings.Split(rawInput, "\n")
 
   safeReports := 0
@@ -55,13 +90,14 @@ func Part1(rawInput string) int {
 
     numLevels := make([]int, len(splitBySpace))
 
-    for i:=0; i<len(splitBySpace); i++ {
+    for i := 0; i < len(splitBySpace); i++ {
       intValue, err := strconv.Atoi(splitBySpace[i])
       check(err)
       numLevels[i] = intValue
     }
 
-    if IsUnsualSequence(numLevels) {
+    // if IsSafeSequence(numLevels) {
+    if IsSafeSequenceDamped(numLevels) {
       safeReports += 1
     }
   }
@@ -75,7 +111,15 @@ func main() {
 
 	data := string(b1)
 
-	fmt.Println(Part1(data))
+	fmt.Println(DetectUnusualSequence(data))
+
+  // a := []int{7, 6, 4, 2, 1}
+  // fmt.Println(SliceAt(a, 4))
+
+  // b := []int{58, 57, 50, 48, 46, 42}
+  // fmt.Println(SliceAt(b, 3))
+  // fmt.Println(SliceAt(b, 4))
+  // fmt.Println(SliceAt(b, 5))
 
   // a := []int{7, 6, 4, 2, 1}
   // fmt.Printf("a %t\n", IsUnsualSequence(a))
