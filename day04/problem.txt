@@ -35,4 +35,5 @@ S.S.S.S.SS
 .A.A.A.A.A
 ..M.M.M.MM
 .X.X.XMASX
+
 Take a look at the little Elf's word search. How many times does XMAS appear?
