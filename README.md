@@ -4,3 +4,4 @@
 - [Day 2: Red-Nosed Reports](./day02)
 - [Day 3: Mull It Over](./day03)
 - [Day 4: Mull Ceres Search](./day04)
+- [Day 5: Print Queue](./day05)
