@@ -184,7 +184,7 @@ func XMASDiagonalSearch(charMap [][]string, matchMap [][]string) int {
 }
 
 
-func XMASSearch(data string) int {
+func XMASSearch(data string) int { // Part 1
 	wordLines := strings.Split(data, "\n")
 	charMap := make([][]string, len(wordLines))
 
@@ -204,12 +204,56 @@ func XMASSearch(data string) int {
 
 	totalMatch = horizontalMatch + verticalMatch + diagonalMatch
 	
-	// WriteFile("./output.txt", output)
 	return totalMatch
+}
+
+
+func MASCrossSearch(charMap [][]string, matchMap [][]string) int {
+	matches := 0
+
+	// find all A occurrences
+	for i, line := range charMap {
+		for j, char := range line {
+			if char == "A" {
+				if i-1 >= 0 && j-1 >= 0 && i+1 < len(charMap) && j+1 < len(line) {
+					lowerSlopeMatch := (charMap[i-1][j-1] == "M" && charMap[i+1][j+1] == "S") || (charMap[i-1][j-1] == "S" && charMap[i+1][j+1] == "M")
+					higherSlopeMatch := (charMap[i-1][j+1] == "M" && charMap[i+1][j-1] == "S") || (charMap[i-1][j+1] == "S" && charMap[i+1][j-1] == "M")
+
+					if lowerSlopeMatch && higherSlopeMatch {
+						matches += 1
+						matchMap[i][j] = charMap[i][j]
+						matchMap[i-1][j-1] = charMap[i-1][j-1]
+						matchMap[i+1][j+1] = charMap[i+1][j+1]
+						matchMap[i-1][j+1] = charMap[i-1][j+1]
+						matchMap[i+1][j-1] = charMap[i+1][j-1]
+					}
+				}
+			}
+		}
+	}
+
+	return matches
+}
+
+func MASXearch(data string) int { // Part 2
+	wordLines := strings.Split(data, "\n")
+	charMap := make([][]string, len(wordLines))
+
+	for i, line := range wordLines {
+		charMap[i] = strings.Split(line, "")
+	}
+
+	matchMap := CreateMatchMap(&charMap)
+	crossMatch := MASCrossSearch(charMap, matchMap)
+
+	WriteOutputMatchMap(matchMap, "./output_2.txt")
+
+	return crossMatch
 }
 
 func main() {
 	data := ReadFile("./input.txt")
 
-	fmt.Println(XMASSearch(data)) // 1811
+	// fmt.Println(XMASSearch(data)) // 2718
+	fmt.Println(MASXearch(data)) // 2046
 }
