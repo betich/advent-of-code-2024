@@ -120,27 +120,45 @@ func All(a []bool) bool {
 	return true
 }
 
+func IsAllValid(rules [][]int, update []int) (bool, [][]int) {
+	valid := make([]bool, len(rules))
+	wrongRules := [][]int{}
+
+	for i, rule := range rules {
+		before := rule[0]
+		after := rule[1]
+
+		found, indexes := FindMultipleInSlice(before, after, update)
+
+		valid[i] = !found || (indexes[0] < indexes[1])
+		if !valid[i] {
+			wrongRules = append(wrongRules, rule)
+		}
+	}
+	return All(valid), wrongRules
+}
+
 func FilterValidUpdates(rules [][]int, updates [][]int) [][]int {
 	validUpdates := [][]int{}
 
 	for _, update := range updates {
-		valid := make([]bool, len(rules))
-
-		for i, rule := range rules {
-			before := rule[0]
-			after := rule[1]
-
-			found, indexes := FindMultipleInSlice(before, after, update)
-
-			valid[i] = !found || (indexes[0] < indexes[1])
-		}
-
-		if All(valid) {
+		allValid, _ := IsAllValid(rules, update)
+		if allValid {
 			validUpdates = append(validUpdates, update)
 		}
 	}
 
 	return validUpdates
+}
+
+func Find(a []int, value int) int {
+	for i, v := range a {
+		if v == value {
+			return i
+		}
+	}
+
+	return -1
 }
 
 func SumMiddleValues(values [][]int) int {
@@ -157,15 +175,87 @@ func SumMiddleValues(values [][]int) int {
 	return sum
 }
 
+func Rearrange(sample []int, rules [][]int) []int {
+	// Create adjacency list and in-degree map, scoped to elements in the sample
+	graph := make(map[int][]int)
+	inDegree := make(map[int]int)
+
+	// Initialize in-degree map for elements in the sample
+	for _, num := range sample {
+		inDegree[num] = 0
+	}
+
+	// Build graph and in-degree map, only for elements in the sample
+	for _, rule := range rules {
+		before, after := rule[0], rule[1]
+		if _, existsBefore := inDegree[before]; existsBefore {
+			if _, existsAfter := inDegree[after]; existsAfter {
+				graph[before] = append(graph[before], after)
+				inDegree[after]++
+			}
+		}
+	}
+
+	// Topological sort using Kahn's algorithm
+	queue := []int{}
+	for num, degree := range inDegree {
+		if degree == 0 {
+			queue = append(queue, num)
+		}
+	}
+
+	result := []int{}
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
+		result = append(result, current)
+		for _, neighbor := range graph[current] {
+			inDegree[neighbor]--
+			if inDegree[neighbor] == 0 {
+				queue = append(queue, neighbor)
+			}
+		}
+	}
+
+	// Check if the sorted result contains all elements from the sample
+	if len(result) != len(sample) {
+		return nil
+	}
+
+	return result
+}
+
+func ProcessIncorrectUpdates(rules [][]int, updates [][]int) [][]int {
+	processedUpdates := [][]int{}
+
+	for _, update := range updates {
+		allValid, wrongRules := IsAllValid(rules, update)
+		if !allValid {
+			// Rearrange the update to make it valid
+			rearranged := Rearrange(update, wrongRules)
+			if rearranged != nil {
+				processedUpdates = append(processedUpdates, rearranged)
+			}
+			fmt.Println("Rearranged:", rearranged)
+		}
+	}
+
+	return processedUpdates
+}
+
 func PrinterUpdateValue(data string) int {
 	rulesInput, updatesInput := ProcessInput(data)
 
 	rules := CreateRule(rulesInput)
 	updates := CreateUpdateInstructions(updatesInput)
 
-	validUpdates := FilterValidUpdates(rules, updates)
+	// validUpdates := FilterValidUpdates(rules, updates) // 4790
 
-	result := SumMiddleValues(validUpdates)
+	// result := SumMiddleValues(validUpdates)
+
+	processedUpdates := ProcessIncorrectUpdates(rules, updates) // 10717
+
+	result := SumMiddleValues(processedUpdates)
 
 	return result
 }
@@ -173,5 +263,11 @@ func PrinterUpdateValue(data string) int {
 func main() {
 	data := ReadFile("./input.txt")
 
-	fmt.Println(PrinterUpdateValue(data)) // 4790
+	fmt.Println(PrinterUpdateValue(data))
+
+	// sample := [][]int{{97, 13, 75, 29, 47}}
+	// rules := [][]int{{47, 53}, {97, 13}, {97, 61}, {97, 47}, {75, 29}, {61, 13}, {75, 53}, {29, 13}, {97, 29}, {53, 29}, {61, 53}, {97, 53}, {61, 29}, {47, 13}, {75, 47}, {97, 75}, {47, 61}, {75, 61}, {47, 29}, {75, 13}, {53, 13}}
+
+	// fmt.Println(ProcessIncorrectUpdates(rules, sample))
+	// fmt.Println(Rearrange(sample[0], rules))
 }
